@@ -1,273 +1,131 @@
-# 📱 Flutter Tasks App
+# 🚀 Flutter Senior Template: Clean Architecture + Riverpod + GoRouter
 
-> Современное мобильное приложение для управления задачами, написанное на **Flutter** с применением **senior-level архитектуры**.
-
----
-
-## 📋 О проекте
-
-**Flutter Tasks App** — это учебно-демонстрационный проект, показывающий как правильно строить Flutter-приложения по принципам чистой архитектуры. Проект создан как эталонная реализация для разработчиков, которые хотят понять как организовывать код в больших масштабируемых Flutter-приложениях.
-
-### Что умеет приложение:
-- ✅ Просмотр списка задач
-- ➕ Добавление новых задач через bottom sheet
-- ☑️ Отметка задач как выполненных (с анимацией)
-- 🗑️ Удаление задач свайпом вправо-влево
-- 📊 Отображение прогресса выполнения в реальном времени
-- 👤 Экран профиля со статистикой
-- 🌙 Красивая тёмная тема с кастомной палитрой
+Современный, масштабируемый шаблон Flutter-приложения, написанный по стандартам **Senior/Architect** уровня. В этом проекте применены лучшие практики индустрии для создания надежных, тестируемых и высокопроизводительных приложений.
 
 ---
 
-## 🏗️ Архитектура
+## 🏗️ Архитектура (Clean Architecture + Feature-First)
 
-Проект использует **Feature-based Clean Architecture** — каждая фича изолирована и содержит все свои слои внутри.
+Проект использует гибридный подход: **слоистая чистая архитектура (Clean Architecture)** для бизнес-правил и работы с данными, объединенная с **Feature-Driven (Feature-First)** структурой для UI. 
 
-### Принципы которые соблюдаются:
+Это позволяет масштабировать приложение на сотни экранов без превращения кода в "лапшу", а также легко подменять базы данных или API без изменения UI-кода.
 
-| Принцип | Описание |
-|---------|---------|
-| **Single Responsibility** | Каждый файл и класс делает ровно одну вещь |
-| **Separation of Concerns** | UI не знает о бизнес-логике, провайдеры не знают об UI |
-| **DRY** | Градиенты, тени, отступы определены один раз в `AppTheme` |
-| **Composition over Inheritance** | Виджеты собираются из маленьких кусков |
-| **Immutability** | Модели данных иммутабельны, состояние меняется только через Notifier |
+### Структура папок `lib/`
 
----
-
-## 📁 Структура проекта
-
-```
+```text
 lib/
-├── core/                                  # Общие компоненты для всего приложения
-│   ├── extensions/
-│   │   └── build_context_ext.dart         # Расширения для BuildContext
-│   └── theme/
-│       └── app_theme.dart                 # Дизайн-система: цвета, типографика, тени
+├── core/                   # Ядро приложения: то, что используется везде
+│   ├── error/              # Типизированные бизнес-ошибки (AppException)
+│   ├── extensions/         # Удобные расширения (например, для BuildContext)
+│   ├── logger/             # Глобальный инстанс Talker для логов
+│   ├── router/             # Настройка GoRouter (маршруты без magic strings)
+│   └── theme/              # Дизайн-система (цвета, шрифты, стили)
 │
-├── features/                              # Фичи приложения (feature-based структура)
-│   │
-│   ├── home/                              # Фича "Главный экран"
-│   │   ├── home.dart                      # Barrel export — единая точка импорта
-│   │   ├── models/
-│   │   │   └── task.dart                  # Доменная модель Task (иммутабельная)
-│   │   ├── providers/
-│   │   │   └── tasks_provider.dart        # Riverpod Notifier + 4 провайдера
-│   │   ├── screens/
-│   │   │   └── home_screen.dart           # Экран — только компоновка виджетов
-│   │   └── widgets/                       # Переиспользуемые виджеты фичи
-│   │       ├── add_fab.dart               # Кнопка "+" с анимацией нажатия
-│   │       ├── add_task_sheet.dart        # Bottom sheet добавления задачи
-│   │       ├── home_header.dart           # Шапка: приветствие + аватар
-│   │       ├── progress_card.dart         # Карточка прогресса с анимацией
-│   │       └── task_card.dart             # Строка задачи (свайп, чекбокс)
-│   │
-│   └── profile/                           # Фича "Профиль"
-│       ├── profile.dart                   # Barrel export
-│       ├── screens/
-│       │   └── profile_screen.dart        # Экран профиля
-│       └── widgets/
-│           ├── menu_item_tile.dart        # Строка настроек меню
-│           └── stat_card.dart             # Карточка статистики
+├── domain/                 # Бизнес-логика (самый независимый слой)
+│   ├── models/             # Идеально чистые Dart-классы (иммутабельные)
+│   └── repositories/       # Абстрактные интерфейсы (контракты) для данных
 │
-└── main.dart                              # Точка входа (30 строк)
+├── data/                   # Работа с данными (реализация контрактов)
+│   ├── providers/          # DI-провайдеры (внедрение зависимостей)
+│   ├── repositories/       # Реализация ITaskRepository (ловит ошибки, мапит данные)
+│   └── sources/            # Источники данных (LocalSource, API, Hive, SQLite)
+│
+├── features/               # UI фичи приложения (экраны)
+│   ├── home/               # Фича "Главный экран"
+│   │   ├── providers/      # Стейт-менеджмент (Riverpod AsyncNotifier)
+│   │   ├── screens/        # Экраны (только верстка, без бизнес-логики)
+│   │   ├── widgets/        # Локальные виджеты фичи
+│   │   └── home.dart       # Barrel export
+│   │
+│   └── profile/            # Фича "Профиль"
+│       └── ...             # Аналогичная структура
+│
+└── main.dart               # Точка входа, настройка ProviderScope и запуск
 ```
 
 ---
 
-## 🛠️ Технологический стек
+## 🛠️ Стек технологий
 
-| Технология | Версия | Назначение |
-|-----------|--------|-----------|
-| **Flutter** | 3.x | UI фреймворк |
-| **Dart** | 3.x | Язык программирования |
-| **flutter_riverpod** | ^2.6.1 | State management |
-| **google_fonts** | ^6.2.1 | Типографика (шрифт Inter) |
-
----
-
-## 🧠 State Management — Riverpod
-
-Для управления состоянием используется **Riverpod 2.x** — современный и рекомендуемый подход в Flutter.
-
-### Как устроены провайдеры:
-
-```dart
-// Главный провайдер — список задач
-final tasksProvider = NotifierProvider<TasksNotifier, List<Task>>(
-  TasksNotifier.new,
-);
-
-// Вычисляемые провайдеры (автоматически пересчитываются)
-final completedCountProvider = Provider<int>(
-  (ref) => ref.watch(tasksProvider).where((t) => t.isDone).length,
-);
-
-final progressProvider = Provider<double>((ref) {
-  final total = ref.watch(totalCountProvider);
-  final completed = ref.watch(completedCountProvider);
-  return total == 0 ? 0.0 : completed / total;
-});
-```
-
-### Поток данных:
-```
-Пользователь нажимает → TaskCard → ref.read(tasksProvider.notifier).toggle(id)
-                                                    ↓
-                                           TasksNotifier.toggle()
-                                                    ↓
-                                         state обновляется
-                                                    ↓
-                   HomeScreen, ProgressCard, ProfileScreen — всё пересчитывается автоматически
-```
+*   **State Management:** [`flutter_riverpod`](https://pub.dev/packages/flutter_riverpod) — строгий, безопасный и масштабируемый контроль состояний.
+*   **Навигация:** [`go_router`](https://pub.dev/packages/go_router) — декларативный роутинг 2.0, deep links, защита маршрутов, типизация.
+*   **Логирование:** [`talker_flutter`](https://pub.dev/packages/talker_flutter) — продвинутая система логов. Логирует изменения стейта, ошибки и кастомные события. Имеет встроенный UI экран для просмотра логов прямо в приложении.
+*   **Архитектура:** Clean Architecture + Dependency Inversion + Optimistic Updates.
+*   **UI/UX:** Кастомная тема, плавные анимации, микро-взаимодействия.
 
 ---
 
-## 🎨 Дизайн-система
+## 💎 Главные архитектурные фишки
 
-Вся палитра и стили определены в одном месте — [`lib/core/theme/app_theme.dart`](lib/core/theme/app_theme.dart):
+### 1. Inversion of Control (Инверсия зависимостей)
+UI и State Management **ничего не знают** о том, откуда берутся данные. Они общаются с абстрактным `ITaskRepository`. Реализация (`TaskRepositoryImpl`) скрыта в `data`-слое. 
+*Плюс:* В тестах мы можем за секунду подменить базу данных на мок. Если нужно перейти с локального хранения на Firebase — мы меняем только один класс в `data/sources`, не трогая ни строчки UI.
 
-```dart
-abstract final class AppTheme {
-  static const primary     = Color(0xFF6C63FF);  // Фиолетовый — основной
-  static const secondary   = Color(0xFFFF6584);  // Розовый — акцент
-  static const accent      = Color(0xFF43E97B);  // Зелёный — успех
-  static const bgDark      = Color(0xFF0F0F1A);  // Фон приложения
-  static const bgCard      = Color(0xFF1A1A2E);  // Фон карточек
-  static const textPrimary = Color(0xFFF5F5FF);  // Основной текст
-}
-```
+### 2. Гранулярный рендеринг (Riverpod `.select`)
+Приложение не перестраивает весь экран при изменении одной задачи. Используется паттерн `Provider.family` в связке с `.select()`. Если меняется статус задачи "Изучить Riverpod", перерисуется **только одна её карточка**, а не весь `ListView`.
 
-Использование расширений контекста вместо `Theme.of(context)`:
-```dart
-// ❌ Многословно
-Theme.of(context).textTheme.titleLarge
+### 3. AsyncNotifier и Optimistic Updates
+`TasksNotifier` работает с асинхронными данными (`AsyncValue`). 
+При обновлении задачи стейт обновляется **мгновенно** (Optimistic Update) для лучшего UX, а запрос в репозиторий уходит в фоне. Если база данных ответит ошибкой — стейт автоматически откатится (Rollback), а пользователь увидит красивое уведомление.
 
-// ✅ Через extension
-context.textTheme.titleLarge
-```
+### 4. Производительность отрисовки
+Тяжелые анимации и часто обновляющиеся виджеты (например, прогресс-бар и плавающая кнопка FAB) обернуты в `RepaintBoundary`. Это говорит движку Flutter (Impeller/Skia) не перекрашивать соседей, экономя ресурсы процессора и батареи.
+
+### 5. Обработка ошибок (Error Handling)
+Слой `data` перехватывает все страшные системные ошибки (SocketException, SQLiteException и т.д.) и трансформирует их в аккуратную иерархию `AppException`. UI работает только с понятными бизнес-ошибками.
 
 ---
 
 ## 🚀 Как запустить
 
-### Требования
-
-- [Flutter SDK](https://flutter.dev/docs/get-started/install) 3.x
-- [Android Studio](https://developer.android.com/studio) или [Xcode](https://developer.apple.com/xcode/) (для iOS)
-- Эмулятор или реальное устройство
-
-### 1. Клонируй и установи зависимости
+В проекте настроен `package.json` с yarn-скриптами для удобства (если у вас установлен Yarn/NPM):
 
 ```bash
-# Установить пакеты
+# Установка зависимостей
 flutter pub get
-```
 
-### 2. Запуск
-
-```bash
-# Посмотреть доступные устройства
-flutter devices
+# Запуск на iOS симуляторе
+yarn ios:simulator
 
 # Запуск на Android эмуляторе
 yarn android:emulator
-
-# Запуск на Android устройстве
-yarn android
-
-# Запуск на iOS симуляторе
-flutter run -d 58E85CB0-70A1-4538-84E3-FCCBBE08E0F9
-
-# Запуск на macOS (desktop)
-flutter run -d macos
 ```
 
-### 3. Через Xcode (iOS)
-
+Если вы не используете Yarn:
 ```bash
-# 1. Установить CocoaPods зависимости
-cd ios && pod install
-
-# 2. Открыть в Xcode (обязательно .xcworkspace, не .xcodeproj!)
-open ios/Runner.xcworkspace
-
-# 3. В Xcode выбрать устройство и нажать ▶️ Run
+flutter run
 ```
-
-> ⚠️ **Важно**: для запуска на реальном iPhone нужно в Xcode → Signing & Capabilities → выбрать свой Apple Team.
 
 ---
 
-## ⚡ Hot Reload и Hot Restart
+## 🧪 Тестирование
 
-Когда приложение запущено через `flutter run`:
+Код покрыт тестами на **всех слоях**:
+1. **Unit-тесты:** Проверка иммутабельности моделей (`Task`).
+2. **Provider-тесты:** Тестирование стейт-менеджера (`TasksNotifier`). Проверка добавления, удаления, изменения статуса, а также расчетных провайдеров (прогресс, счетчики).
+3. **Widget-тесты:** Полный рендер `HomeScreen`. Ожидание завершения загрузки асинхронных провайдеров (`pumpUntilSettled`), поиск виджетов, проверка UI состояний.
 
-```
-r → Hot Reload   (применяет изменения UI за < 1 сек, состояние сохраняется)
-R → Hot Restart  (полный перезапуск, нужен после добавления новых пакетов)
-q → Выйти
-```
-
-В VS Code — просто нажми **Cmd+S** и изменение применится автоматически.
-
----
-
-## 🧪 Полезные команды
-
+**Запуск тестов:**
 ```bash
-# Статический анализ кода
-flutter analyze
-
-# Запустить тесты
+yarn test
+# или
 flutter test
-
-# Очистить билд кэш
-flutter clean && flutter pub get
-
-# Сборка APK для Android
-flutter build apk
-
-# Сборка для iOS
-flutter build ios
-
-# Посмотреть все устройства
-flutter devices
-
-# Посмотреть все эмуляторы
-flutter emulators
 ```
 
----
-
-## 📖 Как добавить новую фичу
-
-Следуй этой структуре при добавлении нового экрана:
-
+**Проверка чистоты кода:**
 ```bash
-lib/features/my_feature/
-├── my_feature.dart              # Barrel export
-├── models/
-│   └── my_model.dart            # Доменная модель
-├── providers/
-│   └── my_provider.dart         # Riverpod провайдеры
-├── screens/
-│   └── my_screen.dart           # Только компоновка
-└── widgets/
-    └── my_widget.dart           # Атомарные виджеты
-```
-
-Добавь маршрут в `main.dart`:
-```dart
-routes: {
-  '/': (_) => const HomeScreen(),
-  '/profile': (_) => const ProfileScreen(),
-  '/my-feature': (_) => const MyScreen(), // ← новый маршрут
-},
+yarn analyze
+# или
+flutter analyze
 ```
 
 ---
 
-## 👨‍💻 Автор
+## 🐞 Просмотр логов (DevTools)
 
-**Gurgen Mkrtchyan** — разработан с ❤️ и вниманием к архитектуре.
+В приложении встроен экран с логами разработчика (Talker). Он автоматически перехватывает все изменения Riverpod (State/Errors/Additions).
+**Как открыть:** Зайдите на экран "Профиль" -> нажмите "DevTools (Логи)".
+
+---
+
+*Создано с фокусом на качество, масштабируемость и производительность. Идеальный базис для энтерпрайз-приложений.*
