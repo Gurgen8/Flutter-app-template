@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:talker_flutter/talker_flutter.dart';
+import 'package:flutter_app/core/logger/logger.dart';
 import 'package:flutter_app/features/home/screens/home_screen.dart';
 import 'package:flutter_app/features/profile/screens/profile_screen.dart';
 
@@ -14,6 +16,7 @@ abstract final class AppRouter {
   // ─── Route paths ──────────────────────────────────────────────────────────
   static const home = '/';
   static const profile = '/profile';
+  static const logs = '/logs';
 
   // ─── Router instance ──────────────────────────────────────────────────────
   static final router = GoRouter(
@@ -30,6 +33,11 @@ abstract final class AppRouter {
         name: 'profile',
         builder: (context, state) => const ProfileScreen(),
       ),
+      GoRoute(
+        path: logs,
+        name: 'logs',
+        builder: (context, state) => TalkerScreen(talker: talker),
+      ),
     ],
   );
 
@@ -37,6 +45,9 @@ abstract final class AppRouter {
 
   /// Push the profile screen onto the navigation stack.
   static void toProfile(BuildContext context) => context.push(profile);
+
+  /// Push the logs screen onto the navigation stack.
+  static void toLogs(BuildContext context) => context.push(logs);
 
   /// Go back to the previous screen.
   static void back(BuildContext context) => context.pop();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_app/core/router/app_router.dart';
 import 'package:flutter_app/core/theme/app_theme.dart';
 import 'package:flutter_app/features/home/providers/tasks_provider.dart';
 import 'package:flutter_app/features/profile/providers/profile_provider.dart';
@@ -65,6 +66,16 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 32),
+              
+              MenuItemTile(
+                item: MenuItemData(
+                  icon: Icons.developer_mode_rounded,
+                  label: 'DevTools (Логи)',
+                  subtitle: 'Просмотр логов и событий',
+                  onTap: () => AppRouter.toLogs(context),
+                ),
+              ),
+              
               ..._menuItems.map((item) => MenuItemTile(item: item)),
             ],
           ),

@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:flutter_app/core/theme/app_theme.dart';
-import 'package:flutter_app/domain/models/task.dart';
 import 'package:flutter_app/features/home/providers/tasks_provider.dart';
 import 'package:flutter_app/features/home/screens/home_screen.dart';
 
@@ -14,7 +13,7 @@ import 'package:flutter_app/features/home/screens/home_screen.dart';
 Widget makeTestable(Widget child) {
   final router = GoRouter(
     initialLocation: '/',
-    routes: [GoRoute(path: '/', builder: (_, __) => child)],
+    routes: [GoRoute(path: '/', builder: (context, state) => child)],
   );
   return ProviderScope(
     child: MaterialApp.router(
