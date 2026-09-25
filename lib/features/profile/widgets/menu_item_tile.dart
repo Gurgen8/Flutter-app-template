@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/extensions/build_context_ext.dart';
+import 'package:flutter_app/core/extensions/build_context_ext.dart';
+import 'package:flutter_app/core/theme/app_theme.dart';
 
 /// Data class for a single settings menu entry.
 class MenuItemData {

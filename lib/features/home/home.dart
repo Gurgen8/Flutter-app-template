@@ -1,6 +1,5 @@
 export 'screens/home_screen.dart';
 export 'providers/tasks_provider.dart';
-export 'models/task.dart';
 export 'widgets/add_fab.dart';
 export 'widgets/add_task_sheet.dart';
 export 'widgets/home_header.dart';

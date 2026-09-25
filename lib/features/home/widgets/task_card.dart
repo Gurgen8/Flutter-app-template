@@ -1,23 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/extensions/build_context_ext.dart';
-import '../providers/tasks_provider.dart';
+import 'package:flutter_app/core/extensions/build_context_ext.dart';
+import 'package:flutter_app/core/theme/app_theme.dart';
+import 'package:flutter_app/features/home/providers/tasks_provider.dart';
 
-/// Swipeable task row with animated checkbox and dismiss-to-delete.
+// ─── Per-task provider (granular rebuild) ─────────────────────────────────────
+
+/// Derived provider scoped to a single task by [id].
+/// Only this card rebuilds when its own task changes — not the whole list.
+final _taskByIdProvider = Provider.family<Task?, String>(
+  (ref, id) => ref.watch(
+    tasksProvider.select(
+      (asyncValue) => asyncValue.valueOrNull?.firstWhere(
+        (t) => t.id == id,
+        orElse: () => Task(id: id, title: '', createdAt: DateTime.now()),
+      ),
+    ),
+  ),
+);
+
+// ─── Public widget ────────────────────────────────────────────────────────────
+
+/// Swipeable task row.
+///
+/// Accepts only [taskId] — reads its own state via [_taskByIdProvider]
+/// so only this card rebuilds when this specific task changes.
 class TaskCard extends ConsumerWidget {
-  const TaskCard({super.key, required this.task});
+  const TaskCard({super.key, required this.taskId});
 
-  final Task task;
+  final String taskId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Dismissible(
-      key: ValueKey(task.id),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) => ref.read(tasksProvider.notifier).remove(task.id),
-      background: _DismissBackground(),
-      child: _TaskTile(task: task, ref: ref, context: context),
+    final task = ref.watch(_taskByIdProvider(taskId));
+    if (task == null) return const SizedBox.shrink();
+
+    return RepaintBoundary(
+      child: Dismissible(
+        key: ValueKey(taskId),
+        direction: DismissDirection.endToStart,
+        onDismissed: (_) => ref.read(tasksProvider.notifier).remove(taskId),
+        background: const _DismissBackground(),
+        child: _TaskTile(task: task, taskId: taskId),
+      ),
     );
   }
 }
@@ -25,6 +50,8 @@ class TaskCard extends ConsumerWidget {
 // ─── Private sub-widgets ──────────────────────────────────────────────────────
 
 class _DismissBackground extends StatelessWidget {
+  const _DismissBackground();
+
   @override
   Widget build(BuildContext context) => Container(
         alignment: Alignment.centerRight,
@@ -40,19 +67,14 @@ class _DismissBackground extends StatelessWidget {
       );
 }
 
-class _TaskTile extends StatelessWidget {
-  const _TaskTile({
-    required this.task,
-    required this.ref,
-    required this.context,
-  });
+class _TaskTile extends ConsumerWidget {
+  const _TaskTile({required this.task, required this.taskId});
 
   final Task task;
-  final WidgetRef ref;
-  final BuildContext context;
+  final String taskId;
 
   @override
-  Widget build(BuildContext _) => AnimatedContainer(
+  Widget build(BuildContext context, WidgetRef ref) => AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -72,10 +94,10 @@ class _TaskTile extends StatelessWidget {
           children: [
             _Checkbox(
               isDone: task.isDone,
-              onTap: () => ref.read(tasksProvider.notifier).toggle(task.id),
+              onTap: () => ref.read(tasksProvider.notifier).toggle(taskId),
             ),
             const SizedBox(width: 16),
-            Expanded(child: _Label(task: task, context: context)),
+            Expanded(child: _Label(task: task)),
           ],
         ),
       );
@@ -110,18 +132,16 @@ class _Checkbox extends StatelessWidget {
 }
 
 class _Label extends StatelessWidget {
-  const _Label({required this.task, required this.context});
+  const _Label({required this.task});
 
   final Task task;
-  final BuildContext context;
 
   @override
-  Widget build(BuildContext _) => Text(
+  Widget build(BuildContext context) => Text(
         task.title,
         style: context.textTheme.bodyLarge?.copyWith(
           color: task.isDone ? AppTheme.textSecondary : AppTheme.textPrimary,
-          decoration:
-              task.isDone ? TextDecoration.lineThrough : null,
+          decoration: task.isDone ? TextDecoration.lineThrough : null,
           decorationColor: AppTheme.textSecondary,
           fontWeight: FontWeight.w500,
         ),

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/extensions/build_context_ext.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../home/providers/tasks_provider.dart';
-import '../widgets/menu_item_tile.dart';
-import '../widgets/stat_card.dart';
+import 'package:flutter_app/core/theme/app_theme.dart';
+import 'package:flutter_app/features/home/providers/tasks_provider.dart';
+import 'package:flutter_app/features/profile/providers/profile_provider.dart';
+import 'package:flutter_app/features/profile/widgets/menu_item_tile.dart';
+import 'package:flutter_app/features/profile/widgets/profile_avatar.dart';
+import 'package:flutter_app/features/profile/widgets/profile_back_bar.dart';
+import 'package:flutter_app/features/profile/widgets/profile_stats_row.dart';
 
-/// Profile screen — reads task stats from shared providers.
+/// Profile screen — pure composition, zero inline widgets.
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -35,6 +37,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(profileProvider);
     final completed = ref.watch(completedCountProvider);
     final total = ref.watch(totalCountProvider);
 
@@ -43,15 +46,24 @@ class ProfileScreen extends ConsumerWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 12),
-              _BackBar(),
+              const ProfileBackBar(title: 'Профиль'),
               const SizedBox(height: 36),
-              const _Avatar(),
+              ProfileAvatar(
+                imageUrl: profile.avatarUrl,
+                onEditTap: () {/* TODO: pick image */},
+              ),
               const SizedBox(height: 20),
-              _UserInfo(context: context),
+              _UserInfoBlock(name: profile.name, email: profile.email),
               const SizedBox(height: 36),
-              _StatsRow(completed: completed, total: total),
+              RepaintBoundary(
+                child: ProfileStatsRow(
+                  completed: completed,
+                  total: total,
+                ),
+              ),
               const SizedBox(height: 32),
               ..._menuItems.map((item) => MenuItemTile(item: item)),
             ],
@@ -62,114 +74,31 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
-// ─── Private sub-widgets ──────────────────────────────────────────────────────
+// ─── Local-only widget (не переиспользуется вне этого экрана) ─────────────────
 
-class _BackBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Row(
-        children: [
-          GestureDetector(
-            onTap: context.pop,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppTheme.bgCard,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 18,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Text('Профиль', style: context.textTheme.titleLarge),
-        ],
-      );
-}
+class _UserInfoBlock extends StatelessWidget {
+  const _UserInfoBlock({required this.name, required this.email});
 
-class _Avatar extends StatelessWidget {
-  const _Avatar();
+  final String name;
+  final String email;
 
   @override
-  Widget build(BuildContext context) => Stack(
-        alignment: Alignment.bottomRight,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              gradient: AppTheme.avatarGradient,
-              borderRadius: BorderRadius.circular(32),
-              boxShadow: AppTheme.primaryShadow(0.4),
-            ),
-            child: const Icon(
-              Icons.person_rounded,
-              size: 50,
-              color: Colors.white,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: AppTheme.accent,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(
-              Icons.edit_rounded,
-              size: 14,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      );
-}
-
-class _UserInfo extends StatelessWidget {
-  const _UserInfo({required this.context});
-  final BuildContext context;
-
-  @override
-  Widget build(BuildContext _) => Column(
+  Widget build(BuildContext context) => Column(
         children: [
           Text(
-            'Gurgen Mkrtchyan',
-            style: context.textTheme.headlineSmall,
+            name,
+            style: Theme.of(context)
+                .textTheme
+                .headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
-          Text('gurgen@example.com', style: context.textTheme.bodyMedium),
-        ],
-      );
-}
-
-class _StatsRow extends StatelessWidget {
-  const _StatsRow({required this.completed, required this.total});
-  final int completed;
-  final int total;
-
-  @override
-  Widget build(BuildContext context) => Row(
-        children: [
-          StatCard(
-            label: 'Всего',
-            value: '$total',
-            icon: Icons.task_alt_rounded,
-            color: AppTheme.primary,
-          ),
-          const SizedBox(width: 16),
-          StatCard(
-            label: 'Выполнено',
-            value: '$completed',
-            icon: Icons.check_circle_rounded,
-            color: AppTheme.accent,
-          ),
-          const SizedBox(width: 16),
-          StatCard(
-            label: 'Осталось',
-            value: '${total - completed}',
-            icon: Icons.pending_rounded,
-            color: AppTheme.secondary,
+          Text(
+            email,
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: AppTheme.textSecondary),
           ),
         ],
       );

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'core/theme/app_theme.dart';
-import 'features/home/home.dart';
-import 'features/profile/profile.dart';
+import 'package:flutter_app/core/router/app_router.dart';
+import 'package:flutter_app/core/theme/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,14 +19,10 @@ class _App extends StatelessWidget {
   const _App();
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
+  Widget build(BuildContext context) => MaterialApp.router(
         title: 'Tasks App',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark,
-        initialRoute: '/',
-        routes: {
-          '/': (_) => const HomeScreen(),
-          '/profile': (_) => const ProfileScreen(),
-        },
+        routerConfig: AppRouter.router,
       );
 }

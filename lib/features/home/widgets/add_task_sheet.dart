@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/extensions/build_context_ext.dart';
-import '../providers/tasks_provider.dart';
+import 'package:flutter_app/core/extensions/build_context_ext.dart';
+import 'package:flutter_app/core/theme/app_theme.dart';
+import 'package:flutter_app/features/home/providers/tasks_provider.dart';
 
 /// Modal bottom sheet for creating a new task.
 ///

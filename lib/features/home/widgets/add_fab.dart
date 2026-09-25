@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_theme.dart';
+import 'package:flutter_app/core/theme/app_theme.dart';
 
 /// Animated floating action button with press-scale feedback.
 class AddFab extends StatefulWidget {

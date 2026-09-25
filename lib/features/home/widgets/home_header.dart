@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/extensions/build_context_ext.dart';
+import 'package:flutter_app/core/theme/app_theme.dart';
 
 /// Top header row: greeting + title + avatar button.
 class HomeHeader extends StatelessWidget {
@@ -12,29 +11,33 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _Greeting(context: context),
+          _Greeting(),
           _AvatarButton(onTap: onAvatarTap),
         ],
       );
 }
 
-class _Greeting extends StatelessWidget {
-  const _Greeting({required this.context});
-  final BuildContext context;
+// ─── Private sub-widgets ──────────────────────────────────────────────────────
 
+class _Greeting extends StatelessWidget {
   @override
-  Widget build(BuildContext _) => Column(
+  Widget build(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Привет 👋',
-            style: context.textTheme.bodyMedium
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
                 ?.copyWith(color: AppTheme.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
             'Мои задачи',
-            style: context.textTheme.headlineMedium,
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       );
@@ -42,6 +45,7 @@ class _Greeting extends StatelessWidget {
 
 class _AvatarButton extends StatelessWidget {
   const _AvatarButton({required this.onTap});
+
   final VoidCallback onTap;
 
   @override
