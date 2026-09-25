@@ -1,0 +1,22 @@
+{
+  "name": "flutter_app",
+  "version": "1.0.0",
+  "description": "Flutter app scripts for running on emulators",
+  "scripts": {
+    "android": "flutter run -d $(flutter devices | grep android | awk '{print $4}' | head -1)",
+    "ios": "flutter run -d $(flutter devices | grep iPhone | awk '{print $4}' | head -1)",
+    "ios:simulator": "flutter run -d 58E85CB0-70A1-4538-84E3-FCCBBE08E0F9",
+    "android:emulator": "flutter emulators --launch $(flutter emulators | grep android | head -1 | awk '{print $1}') && sleep 5 && flutter run -d emulator",
+    "ios:emulator": "flutter emulators --launch $(flutter emulators | grep ios | head -1 | awk '{print $1}') && sleep 5 && flutter run -d iPhone",
+    "devices": "flutter devices",
+    "emulators": "flutter emulators",
+    "run": "flutter run",
+    "test": "flutter test",
+    "test:coverage": "flutter test --coverage",
+    "analyze": "flutter analyze",
+    "build:android": "flutter build apk",
+    "build:ios": "flutter build ios",
+    "clean": "flutter clean",
+    "pub:get": "flutter pub get"
+  }
+}
